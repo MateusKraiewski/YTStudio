@@ -13,7 +13,7 @@ using YTStudio.Desktop.Services;
 namespace YTStudio.Tests;
 
 /// <summary>Sobe a API de verdade (sem janela) com um arquivo .ytv temporário.</summary>
-public sealed class ScriptApiTests : IAsyncLifetime
+public sealed partial class ScriptApiTests : IAsyncLifetime
 {
     private readonly string _dir = Directory.CreateTempSubdirectory("ytstudio-api-").FullName;
     private WebApplication _app = null!;

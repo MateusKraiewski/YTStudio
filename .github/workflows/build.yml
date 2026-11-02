@@ -52,7 +52,7 @@ jobs:
       - name: Versão
         shell: bash
         run: |
-          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then v="${GITHUB_REF#refs/tags/v}"; else v="0.2.0"; fi
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then v="${GITHUB_REF#refs/tags/v}"; else v="0.3.0"; fi
           echo "YTSTUDIO_VERSION=$v" >> "$GITHUB_ENV"
 
       - name: Interface (Angular)

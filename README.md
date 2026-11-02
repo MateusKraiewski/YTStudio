@@ -4,8 +4,8 @@ App de desktop para Windows, macOS e Linux que reúne a gestão dos seus canais 
 agenda de publicação e senhas. Tudo fica **num único arquivo cifrado** (`.ytv`) no seu computador, igual ao KeePass.
 Não tem servidor nem mensalidade, e o backup é só copiar o arquivo.
 
-> Pronto: arquivo cifrado, canais, roteiros (editor Markdown, status, tags, busca e histórico de versões) e atualização automática.
-> Agenda e cofre de senhas chegam nas próximas fases.
+> Pronto: arquivo cifrado, canais, roteiros (editor Markdown, status, tags, busca e histórico de versões), agenda de
+> publicação (calendário do mês, lista dos próximos, lembretes) e atualização automática. O cofre de senhas é a próxima fase.
 
 ## Como funciona o arquivo `.ytv`
 
