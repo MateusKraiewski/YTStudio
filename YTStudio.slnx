@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/YTStudio.Core/YTStudio.Core.csproj" />
+    <Project Path="src/YTStudio.Desktop/YTStudio.Desktop.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/YTStudio.Tests/YTStudio.Tests.csproj" />
+  </Folder>
+</Solution>
