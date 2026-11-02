@@ -4,7 +4,8 @@ App de desktop para Windows, macOS e Linux que reúne a gestão dos seus canais 
 agenda de publicação e senhas. Tudo fica **num único arquivo cifrado** (`.ytv`) no seu computador, igual ao KeePass.
 Não tem servidor nem mensalidade, e o backup é só copiar o arquivo.
 
-> Fase 1: arquivo cifrado + cadastro de canais. Roteiros, agenda e cofre de senhas chegam nas próximas fases.
+> Pronto: arquivo cifrado, canais, roteiros (editor Markdown, status, tags, busca e histórico de versões) e atualização automática.
+> Agenda e cofre de senhas chegam nas próximas fases.
 
 ## Como funciona o arquivo `.ytv`
 
@@ -32,7 +33,18 @@ Avisos na primeira abertura, porque o app ainda não tem assinatura paga:
 - **Mac**: clique com o botão direito no app → *Abrir*.
 - **Linux**: precisa de `libwebkit2gtk-4.1-0` (o `.deb` já instala).
 
-Para gerar uma versão numerada, crie uma tag `v0.2.0` e envie (`git push --tags`).
+## Atualizações
+
+O app confere sozinho (ao abrir e a cada 6 horas) se existe um Release mais novo neste repositório. Se existir,
+aparece uma faixa no topo com **Atualizar agora**: o app baixa o instalador, confere tamanho e SHA-256 e se atualiza,
+fechando e abrindo de novo. No Windows roda o instalador em modo silencioso; no Mac troca o `YTStudio.app`; no Linux
+instala o `.deb` (pede a senha do sistema).
+
+Para publicar uma versão nova:
+1. Suba o número em `Directory.Build.props` (ex.: `0.3.0`) junto com as mudanças.
+2. No GitHub: **Releases → Draft a new release → Choose a tag → digite `v0.3.0` → Create new tag**, e publique.
+   (Ou pelo terminal: `git tag v0.3.0 && git push origin v0.3.0`.)
+3. O GitHub Actions gera os instaladores e anexa ao Release. Os apps instalados avisam em seguida.
 
 ## Desenvolver
 
@@ -59,7 +71,7 @@ Para gerar a interface embutida no app: `cd ui && npm run build` (vai para `src/
 | `src/YTStudio.Core` | Modelos, banco (EF Core) e o arquivo cifrado (`Vault/`) |
 | `src/YTStudio.Desktop` | API local (ASP.NET Core em 127.0.0.1) + janela Photino |
 | `ui/` | Interface em Angular |
-| `tests/YTStudio.Tests` | Testes do arquivo cifrado |
+| `tests/YTStudio.Tests` | Testes do arquivo cifrado, da API de roteiros e das atualizações |
 | `packaging/` | Scripts dos instaladores (Inno Setup, .dmg, .deb) |
 
 A API só aceita chamadas com o token aleatório que a janela recebe ao abrir, e confere o cabeçalho `Host`,

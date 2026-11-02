@@ -1,4 +1,5 @@
 using System.Net;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Hosting.Server.Features;
 using Photino.NET;
@@ -21,8 +22,8 @@ internal static class Program
         bool noWindow = args.Contains("--no-window");
 
         var token = dev ? "dev" : LocalOnly.NewToken();
-        var dialogs = new PhotinoFileDialogs();
-        var app = BuildApp(dev ? DevPort : 0, token, dialogs);
+        var shell = new PhotinoShell();
+        var app = BuildApp(dev ? DevPort : 0, token, shell);
         app.StartAsync().GetAwaiter().GetResult();
 
         var apiUrl = app.Services.GetRequiredService<IServer>().Features.Get<IServerAddressesFeature>()!.Addresses.First();
@@ -30,6 +31,7 @@ internal static class Program
 
         if (noWindow)
         {
+            shell.OnQuit = () => app.Lifetime.StopApplication();
             Console.WriteLine($"YTStudio rodando em {uiUrl} (Ctrl+C para sair)");
             app.WaitForShutdown();
             return 0;
@@ -44,7 +46,7 @@ internal static class Program
             .SetContextMenuEnabled(dev)
             .SetDevToolsEnabled(dev)
             .Load(new Uri(uiUrl));
-        dialogs.Window = window;
+        shell.Window = window;
 
         window.WaitForClose();
 
@@ -54,7 +56,7 @@ internal static class Program
         return 0;
     }
 
-    internal static WebApplication BuildApp(int port, string token, IFileDialogs dialogs)
+    internal static WebApplication BuildApp(int port, string token, IDesktopShell shell, string? settingsDir = null)
     {
         var builder = WebApplication.CreateBuilder(new WebApplicationOptions
         {
@@ -64,8 +66,12 @@ internal static class Program
         builder.WebHost.UseKestrel(k => k.Listen(IPAddress.Loopback, port));
 
         builder.Services.AddSingleton<StudioSession>();
-        builder.Services.AddSingleton(new RecentFiles());
-        builder.Services.AddSingleton(dialogs);
+        builder.Services.AddSingleton(new RecentFiles(settingsDir));
+        builder.Services.AddSingleton(shell);
+        builder.Services.AddHttpClient<UpdateService>(c => c.Timeout = TimeSpan.FromMinutes(10));
+        builder.Services.AddSingleton<UpdateService>(sp => ActivatorUtilities.CreateInstance<UpdateService>(sp,
+            sp.GetRequiredService<IHttpClientFactory>().CreateClient(nameof(UpdateService))));
+        builder.Services.ConfigureHttpJsonOptions(o => o.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
         var app = builder.Build();
 

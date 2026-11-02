@@ -6,6 +6,8 @@ namespace YTStudio.Core.Data;
 public class StudioDbContext(DbContextOptions<StudioDbContext> options) : DbContext(options)
 {
     public DbSet<Channel> Channels => Set<Channel>();
+    public DbSet<Script> Scripts => Set<Script>();
+    public DbSet<ScriptVersion> ScriptVersions => Set<ScriptVersion>();
 
     protected override void OnModelCreating(ModelBuilder b)
     {
@@ -18,6 +20,26 @@ public class StudioDbContext(DbContextOptions<StudioDbContext> options) : DbCont
             e.Property(x => x.Language).HasMaxLength(50);
             e.Property(x => x.Color).HasMaxLength(9);
             e.HasIndex(x => x.Name);
+        });
+
+        b.Entity<Script>(e =>
+        {
+            e.ToTable("scripts");
+            e.Property(x => x.Title).HasMaxLength(300).IsRequired();
+            e.Property(x => x.Tags).HasMaxLength(2000);
+            e.Property(x => x.ThumbnailIdea).HasMaxLength(1000);
+            e.Property(x => x.Status).HasConversion<int>();
+            // Excluir um canal não apaga os roteiros: eles ficam "sem canal".
+            e.HasOne(x => x.Channel).WithMany().HasForeignKey(x => x.ChannelId).OnDelete(DeleteBehavior.SetNull);
+            e.HasMany(x => x.Versions).WithOne().HasForeignKey(x => x.ScriptId).OnDelete(DeleteBehavior.Cascade);
+            e.HasIndex(x => x.ChannelId);
+            e.HasIndex(x => x.UpdatedAt);
+        });
+
+        b.Entity<ScriptVersion>(e =>
+        {
+            e.ToTable("script_versions");
+            e.HasIndex(x => new { x.ScriptId, x.SavedAt });
         });
     }
 

@@ -1,15 +1,17 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { Api, SessionInfo } from './api';
 import { Start } from './start';
-import { Channels } from './channels';
+import { Studio } from './studio';
+import { UpdateBanner } from './update-banner';
 
 @Component({
   selector: 'app-root',
-  imports: [Start, Channels],
+  imports: [Start, Studio, UpdateBanner],
   template: `
+    <app-update-banner />
     @if (session(); as s) {
       @if (s.open) {
-        <app-channels [path]="s.path" (locked)="onLocked()" />
+        <app-studio [path]="s.path" (locked)="onLocked()" />
       } @else {
         <app-start [recent]="s.recent" (opened)="session.set($event)" (recentChanged)="reload()" />
       }
