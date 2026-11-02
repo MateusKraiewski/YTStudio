@@ -52,7 +52,7 @@ jobs:
       - name: Versão
         shell: bash
         run: |
-          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then v="${GITHUB_REF#refs/tags/v}"; else v="0.1.0"; fi
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then v="${GITHUB_REF#refs/tags/v}"; else v="0.2.0"; fi
           echo "YTSTUDIO_VERSION=$v" >> "$GITHUB_ENV"
 
       - name: Interface (Angular)
@@ -89,3 +89,28 @@ jobs:
           name: YTStudio-${{ matrix.rid }}
           path: dist/*
           if-no-files-found: error
+
+  # Ao enviar uma tag vX.Y.Z, publica um Release com os instaladores.
+  # O app procura esse Release e se atualiza sozinho.
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: package
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Publicar release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Se o release já foi criado pela página do GitHub, só anexa os instaladores.
+          if gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload "$GITHUB_REF_NAME" dist/* --repo "$GITHUB_REPOSITORY" --clobber
+          else
+            gh release create "$GITHUB_REF_NAME" dist/* --repo "$GITHUB_REPOSITORY" \
+              --title "YTStudio ${GITHUB_REF_NAME#v}" --generate-notes
+          fi

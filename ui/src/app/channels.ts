@@ -1,6 +1,6 @@
-import { Component, computed, inject, input, OnInit, output, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Api, ApiError, Channel, ChannelInput, fileName } from './api';
+import { Api, ApiError, Channel, ChannelInput } from './api';
 
 const COLORS = ['#E53935', '#FB8C00', '#FDD835', '#43A047', '#00897B', '#1E88E5', '#5E35B1', '#D81B60', '#6D4C41', '#546E7A'];
 
@@ -13,13 +13,6 @@ function emptyInput(): ChannelInput {
   selector: 'app-channels',
   imports: [FormsModule],
   template: `
-    <header class="topbar">
-      <strong>YTStudio</strong>
-      <span class="muted small" [title]="path() ?? ''">{{ name(path()) }}</span>
-      <span class="spacer"></span>
-      <button (click)="lock()" title="Fecha o arquivo e apaga a chave da memória">🔒 Bloquear</button>
-    </header>
-
     <main class="split">
       <aside class="list">
         <div class="list-head">
@@ -83,11 +76,9 @@ function emptyInput(): ChannelInput {
 export class Channels implements OnInit {
   private readonly api = inject(Api);
 
-  readonly path = input<string | null>(null);
   readonly locked = output<void>();
 
   protected readonly colors = COLORS;
-  protected readonly name = fileName;
   protected readonly channels = signal<Channel[]>([]);
   protected readonly query = signal('');
   protected readonly form = signal<ChannelInput | null>(null);
@@ -144,11 +135,6 @@ export class Channels implements OnInit {
       this.channels.update((list) => list.filter((c) => c.id !== id));
       this.cancel();
     });
-  }
-
-  protected async lock() {
-    await this.api.lock();
-    this.locked.emit();
   }
 
   private async guard(work: () => Promise<void>) {

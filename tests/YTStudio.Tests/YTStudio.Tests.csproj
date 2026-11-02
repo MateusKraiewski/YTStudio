@@ -20,6 +20,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\YTStudio.Core\YTStudio.Core.csproj" />
+    <ProjectReference Include="..\..\src\YTStudio.Desktop\YTStudio.Desktop.csproj" />
   </ItemGroup>
 
 </Project>

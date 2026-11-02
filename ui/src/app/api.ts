@@ -18,6 +18,52 @@ export interface Channel {
   updatedAt: string;
 }
 
+export type ScriptStatus = 'Ideia' | 'Roteiro' | 'Gravado' | 'Editado' | 'Publicado';
+export const STATUSES: ScriptStatus[] = ['Ideia', 'Roteiro', 'Gravado', 'Editado', 'Publicado'];
+
+export interface ScriptSummary {
+  id: string;
+  title: string;
+  channelId: string | null;
+  status: ScriptStatus;
+  tags: string[];
+  words: number;
+  readingSeconds: number;
+  updatedAt: string;
+}
+
+export interface ScriptDetail extends ScriptSummary {
+  content: string;
+  description: string | null;
+  thumbnailIdea: string | null;
+  createdAt: string;
+}
+
+export interface ScriptInput {
+  title: string;
+  channelId: string | null;
+  status: ScriptStatus;
+  tags: string[];
+  content: string;
+  description: string | null;
+  thumbnailIdea: string | null;
+}
+
+export interface VersionSummary {
+  id: string;
+  savedAt: string;
+  words: number;
+}
+
+export interface UpdateInfo {
+  current: string;
+  latest: string | null;
+  available: boolean;
+  notes: string | null;
+  pageUrl: string | null;
+  canInstall: boolean;
+}
+
 export type ChannelInput = Pick<Channel, 'name' | 'url' | 'niche' | 'language' | 'color' | 'notes'>;
 
 export class ApiError extends Error {
@@ -89,6 +135,47 @@ export class Api {
     return this.call<void>('DELETE', `/api/channels/${id}`);
   }
 
+  scripts(filter: { channelId?: string; status?: string; q?: string } = {}) {
+    const params = new URLSearchParams(Object.entries(filter).filter(([, v]) => !!v) as [string, string][]);
+    return this.call<ScriptSummary[]>('GET', `/api/scripts?${params}`);
+  }
+
+  script(id: string) {
+    return this.call<ScriptDetail>('GET', `/api/scripts/${id}`);
+  }
+
+  createScript(input: ScriptInput) {
+    return this.call<ScriptDetail>('POST', '/api/scripts', input);
+  }
+
+  updateScript(id: string, input: ScriptInput) {
+    return this.call<ScriptDetail>('PUT', `/api/scripts/${id}`, input);
+  }
+
+  deleteScript(id: string) {
+    return this.call<void>('DELETE', `/api/scripts/${id}`);
+  }
+
+  versions(id: string) {
+    return this.call<VersionSummary[]>('GET', `/api/scripts/${id}/versions`);
+  }
+
+  version(id: string, versionId: string) {
+    return this.call<{ id: string; savedAt: string; content: string }>('GET', `/api/scripts/${id}/versions/${versionId}`);
+  }
+
+  checkUpdate(force = false) {
+    return this.call<UpdateInfo>('GET', `/api/update${force ? '?force=true' : ''}`);
+  }
+
+  installUpdate() {
+    return this.call<void>('POST', '/api/update/install');
+  }
+
+  openUrl(url: string) {
+    return this.call<void>('POST', '/api/open-url', { url });
+  }
+
   private async call<T>(method: string, url: string, body?: unknown): Promise<T> {
     const res = await fetch(url, {
       method,
@@ -107,10 +194,19 @@ export class Api {
       }
       throw new ApiError(message, res.status);
     }
-    return res.status === 204 ? (undefined as T) : ((await res.json()) as T);
+    return res.status === 204 || res.status === 202 ? (undefined as T) : ((await res.json()) as T);
   }
 }
 
 export function fileName(path: string | null): string {
   return path?.split(/[\\/]/).pop() ?? '';
+}
+
+export function minutes(seconds: number): string {
+  if (seconds < 60) return seconds === 0 ? '0 min' : '< 1 min';
+  return `~${Math.round(seconds / 60)} min`;
+}
+
+export function shortDate(iso: string): string {
+  return new Date(iso).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 }

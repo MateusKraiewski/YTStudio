@@ -20,6 +20,9 @@ WizardStyle=modern
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 UninstallDisplayIcon={app}\YTStudio.exe
+; Atualização pelo app: fecha o YTStudio aberto antes de trocar os arquivos.
+CloseApplications=force
+RestartApplications=no
 
 [Languages]
 Name: "brazilianportuguese"; MessagesFile: "compiler:Languages\BrazilianPortuguese.isl"
@@ -36,3 +39,5 @@ Name: "{autodesktop}\YTStudio"; Filename: "{app}\YTStudio.exe"; Tasks: desktopic
 
 [Run]
 Filename: "{app}\YTStudio.exe"; Description: "{cm:LaunchProgram,YTStudio}"; Flags: nowait postinstall skipifsilent
+; Na atualização silenciosa feita pelo próprio app, abre o YTStudio de novo no fim.
+Filename: "{app}\YTStudio.exe"; Flags: nowait; Check: WizardSilent

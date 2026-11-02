@@ -60,6 +60,101 @@ namespace YTStudio.Core.Data.Migrations
 
                     b.ToTable("channels", (string)null);
                 });
+
+            modelBuilder.Entity("YTStudio.Core.Models.Script", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("ChannelId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<long>("CreatedAt")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Tags")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ThumbnailIdea")
+                        .HasMaxLength(1000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("TEXT");
+
+                    b.Property<long>("UpdatedAt")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChannelId");
+
+                    b.HasIndex("UpdatedAt");
+
+                    b.ToTable("scripts", (string)null);
+                });
+
+            modelBuilder.Entity("YTStudio.Core.Models.ScriptVersion", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<long>("SavedAt")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("ScriptId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ScriptId", "SavedAt");
+
+                    b.ToTable("script_versions", (string)null);
+                });
+
+            modelBuilder.Entity("YTStudio.Core.Models.Script", b =>
+                {
+                    b.HasOne("YTStudio.Core.Models.Channel", "Channel")
+                        .WithMany()
+                        .HasForeignKey("ChannelId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Channel");
+                });
+
+            modelBuilder.Entity("YTStudio.Core.Models.ScriptVersion", b =>
+                {
+                    b.HasOne("YTStudio.Core.Models.Script", null)
+                        .WithMany("Versions")
+                        .HasForeignKey("ScriptId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("YTStudio.Core.Models.Script", b =>
+                {
+                    b.Navigation("Versions");
+                });
 #pragma warning restore 612, 618
         }
     }

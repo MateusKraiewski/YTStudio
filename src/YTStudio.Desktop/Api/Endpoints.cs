@@ -8,6 +8,7 @@ namespace YTStudio.Desktop.Api;
 
 public sealed record VaultRequest(string Path, string Password);
 public sealed record ChannelInput(string Name, string? Url, string? Niche, string? Language, string? Color, string? Notes);
+public sealed record OpenUrlRequest(string Url);
 public sealed record SessionInfo(bool Open, string? Path, IReadOnlyList<string> Recent);
 
 public static partial class Endpoints
@@ -19,8 +20,33 @@ public static partial class Endpoints
         api.MapGet("/session", (StudioSession s, RecentFiles recent) =>
             new SessionInfo(s.OpenPath is not null, s.OpenPath, recent.List()));
 
-        api.MapPost("/dialog/open", (IFileDialogs d) => Results.Ok(new { path = d.PickOpen() }));
-        api.MapPost("/dialog/save", (IFileDialogs d) => Results.Ok(new { path = d.PickSave() }));
+        api.MapPost("/dialog/open", (IDesktopShell d) => Results.Ok(new { path = d.PickOpen() }));
+        api.MapPost("/dialog/save", (IDesktopShell d) => Results.Ok(new { path = d.PickSave() }));
+
+        api.MapGet("/update", (bool? force, UpdateService u, CancellationToken ct) => u.CheckAsync(force ?? false, ct));
+        api.MapPost("/update/install", async (UpdateService u, CancellationToken ct) =>
+        {
+            try
+            {
+                await u.InstallAsync(ct);
+                return Results.Accepted();
+            }
+            catch (UpdateException ex)
+            {
+                return Error(ex.Message);
+            }
+            catch (HttpRequestException)
+            {
+                return Error("Não foi possível baixar a atualização. Confira a internet e tente de novo.");
+            }
+        });
+        api.MapPost("/open-url", (OpenUrlRequest req, IDesktopShell d) =>
+        {
+            // Só páginas do próprio projeto no GitHub (notas da versão).
+            if (!req.Url.StartsWith($"https://github.com/{UpdateService.Repo}/", StringComparison.OrdinalIgnoreCase)) return Error("Link não permitido.");
+            d.OpenUrl(req.Url);
+            return Results.NoContent();
+        });
 
         api.MapPost("/vault/create", (VaultRequest req, StudioSession s, RecentFiles recent) =>
             OpenVault(() => VaultFile.Create(req.Path, req.Password), s, recent));
@@ -39,6 +65,8 @@ public static partial class Endpoints
             recent.Remove(path);
             return Results.NoContent();
         });
+
+        ScriptEndpoints.Map(api);
 
         var channels = api.MapGroup("/channels");
 
@@ -130,9 +158,9 @@ public static partial class Endpoints
         return value.Length > max ? value[..max] : value;
     }
 
-    private static IResult Error(string message) => Results.BadRequest(new { error = message });
+    private static IResult Error(string message) => ApiResults.Error(message);
 
-    private static IResult Locked() => Results.Json(new { error = "O arquivo está bloqueado." }, statusCode: StatusCodes.Status423Locked);
+    private static IResult Locked() => ApiResults.Locked();
 
     [GeneratedRegex("^#[0-9a-fA-F]{6}$")]
     private static partial Regex HexColor();
