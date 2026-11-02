@@ -67,6 +67,7 @@ public static partial class Endpoints
         });
 
         ScriptEndpoints.Map(api);
+        PublicationEndpoints.Map(api);
 
         var channels = api.MapGroup("/channels");
 

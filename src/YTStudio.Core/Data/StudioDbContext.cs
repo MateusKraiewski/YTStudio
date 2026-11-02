@@ -8,6 +8,7 @@ public class StudioDbContext(DbContextOptions<StudioDbContext> options) : DbCont
     public DbSet<Channel> Channels => Set<Channel>();
     public DbSet<Script> Scripts => Set<Script>();
     public DbSet<ScriptVersion> ScriptVersions => Set<ScriptVersion>();
+    public DbSet<Publication> Publications => Set<Publication>();
 
     protected override void OnModelCreating(ModelBuilder b)
     {
@@ -34,6 +35,19 @@ public class StudioDbContext(DbContextOptions<StudioDbContext> options) : DbCont
             e.HasMany(x => x.Versions).WithOne().HasForeignKey(x => x.ScriptId).OnDelete(DeleteBehavior.Cascade);
             e.HasIndex(x => x.ChannelId);
             e.HasIndex(x => x.UpdatedAt);
+        });
+
+        b.Entity<Publication>(e =>
+        {
+            e.ToTable("publications");
+            e.Property(x => x.Title).HasMaxLength(300).IsRequired();
+            e.Property(x => x.VideoUrl).HasMaxLength(500);
+            e.Property(x => x.Status).HasConversion<int>();
+            e.Ignore(x => x.ReminderAt);
+            // Excluir canal ou roteiro não apaga o item da agenda.
+            e.HasOne<Channel>().WithMany().HasForeignKey(x => x.ChannelId).OnDelete(DeleteBehavior.SetNull);
+            e.HasOne<Script>().WithMany().HasForeignKey(x => x.ScriptId).OnDelete(DeleteBehavior.SetNull);
+            e.HasIndex(x => x.ScheduledAt);
         });
 
         b.Entity<ScriptVersion>(e =>

@@ -10,6 +10,7 @@ public interface IDesktopShell
     string? PickOpen();
     string? PickSave();
     void OpenUrl(string url);
+    void Notify(string title, string body);
     void Quit();
 }
 
@@ -44,6 +45,8 @@ public sealed class PhotinoShell : IDesktopShell
         else if (OperatingSystem.IsMacOS()) Process.Start("open", uri.AbsoluteUri);
         else Process.Start("xdg-open", uri.AbsoluteUri);
     }
+
+    public void Notify(string title, string body) => Window?.SendNotification(title, body);
 
     public void Quit()
     {

@@ -61,6 +61,59 @@ namespace YTStudio.Core.Data.Migrations
                     b.ToTable("channels", (string)null);
                 });
 
+            modelBuilder.Entity("YTStudio.Core.Models.Publication", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("ChannelId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<long>("CreatedAt")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("TEXT");
+
+                    b.Property<long?>("RemindedAt")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("ReminderMinutes")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<long>("ScheduledAt")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid?>("ScriptId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("TEXT");
+
+                    b.Property<long>("UpdatedAt")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("VideoUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChannelId");
+
+                    b.HasIndex("ScheduledAt");
+
+                    b.HasIndex("ScriptId");
+
+                    b.ToTable("publications", (string)null);
+                });
+
             modelBuilder.Entity("YTStudio.Core.Models.Script", b =>
                 {
                     b.Property<Guid>("Id")
@@ -130,6 +183,19 @@ namespace YTStudio.Core.Data.Migrations
                     b.HasIndex("ScriptId", "SavedAt");
 
                     b.ToTable("script_versions", (string)null);
+                });
+
+            modelBuilder.Entity("YTStudio.Core.Models.Publication", b =>
+                {
+                    b.HasOne("YTStudio.Core.Models.Channel", null)
+                        .WithMany()
+                        .HasForeignKey("ChannelId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("YTStudio.Core.Models.Script", null)
+                        .WithMany()
+                        .HasForeignKey("ScriptId")
+                        .OnDelete(DeleteBehavior.SetNull);
                 });
 
             modelBuilder.Entity("YTStudio.Core.Models.Script", b =>

@@ -139,3 +139,32 @@ textarea.content { font: 15px/1.6 ui-monospace, 'Cascadia Code', Menlo, Consolas
   background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 8px; margin: 8px 0;
 }
 @media (max-width: 1100px) { .row3 { grid-template-columns: 1fr 1fr; } .history { width: 240px; } }
+
+/* agenda */
+app-agenda { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+.agenda { grid-template-columns: 1fr auto; }
+.calendar { padding: 16px; overflow: auto; display: flex; flex-direction: column; min-width: 0; }
+.cal-head { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+.cal-head select { width: auto; }
+.month-title { min-width: 170px; text-align: center; }
+.grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); grid-template-rows: auto repeat(6, minmax(96px, 1fr)); flex: 1;
+  border-top: 1px solid var(--border); border-left: 1px solid var(--border); }
+.wd { padding: 6px; font-size: 12px; color: var(--muted); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); grid-row: auto; min-height: 0; }
+.grid > .wd { height: auto; }
+.cell { border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 4px; background: var(--surface);
+  display: flex; flex-direction: column; gap: 3px; cursor: pointer; min-width: 0; overflow: hidden; }
+.cell.out { background: var(--bg); }
+.cell.out .num { color: var(--muted); }
+.cell.today .num { background: var(--primary); color: var(--primary-text); border-radius: 999px; padding: 0 7px; }
+.num { font-size: 12px; align-self: flex-start; }
+.ev { font-size: 12px; text-align: left; padding: 2px 6px; border-radius: 4px; border: 1px solid var(--border); border-left: 4px solid;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; background: var(--bg); }
+.ev .t { color: var(--muted); }
+.ev.done { opacity: .6; text-decoration: line-through; }
+.ev.cancel { opacity: .45; }
+.ev.active { outline: 2px solid var(--focus); }
+.upcoming h3 { font-size: 13px; color: var(--muted); margin: 16px 0 4px; }
+.upcoming .channel > span:last-child { display: flex; flex-direction: column; }
+.side-editor { width: 360px; border-left: 1px solid var(--border); padding: 16px; overflow: auto; background: var(--surface); }
+.side-editor h2 { margin-bottom: 12px; }
+.banner.reminder { background: color-mix(in srgb, #fdb022 22%, var(--surface)); }
