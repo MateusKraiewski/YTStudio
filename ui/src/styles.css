@@ -1,0 +1,98 @@
+:root {
+  --bg: #f6f7f9;
+  --surface: #ffffff;
+  --border: #dfe3e8;
+  --text: #1c2128;
+  --muted: #667085;
+  --primary: #d92d20;
+  --primary-text: #ffffff;
+  --danger: #b42318;
+  --warn: #9a6700;
+  --focus: #2e90fa;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #111418;
+    --surface: #1a1f25;
+    --border: #2d343c;
+    --text: #e6e9ed;
+    --muted: #98a2b3;
+    --primary: #f04438;
+    --danger: #f97066;
+    --warn: #fdb022;
+    color-scheme: dark;
+  }
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body {
+  font: 14px/1.45 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+app-root { display: flex; flex-direction: column; height: 100%; }
+app-start, app-channels { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+h1 { margin: 0 0 4px; font-size: 28px; }
+h2 { margin: 0; font-size: 16px; }
+
+button {
+  font: inherit; color: var(--text); background: var(--surface);
+  border: 1px solid var(--border); border-radius: 8px; padding: 7px 14px; cursor: pointer;
+}
+button:hover:not(:disabled) { border-color: var(--muted); }
+button:disabled { opacity: .55; cursor: default; }
+button.primary { background: var(--primary); border-color: var(--primary); color: var(--primary-text); }
+button.danger { color: var(--danger); }
+button.link, button.channel { border: 0; background: none; text-align: left; padding: 8px; width: 100%; }
+button.icon { border: 0; background: none; color: var(--muted); padding: 4px 8px; }
+button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+
+input, textarea {
+  font: inherit; color: var(--text); background: var(--surface);
+  border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; width: 100%;
+}
+textarea { resize: vertical; }
+label { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; color: var(--muted); }
+label input, label textarea { color: var(--text); }
+fieldset { border: 0; padding: 0; margin: 0 0 12px; }
+legend { color: var(--muted); margin-bottom: 4px; }
+
+.muted { color: var(--muted); }
+.small { font-size: 12px; }
+.error { color: var(--danger); }
+.warn { color: var(--warn); }
+.spacer { flex: 1; }
+.center { display: flex; align-items: center; justify-content: center; height: 100%; padding: 16px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; }
+.actions { display: flex; gap: 8px; margin-top: 16px; align-items: center; }
+.row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+.start { width: min(480px, 100%); }
+.start h2 { margin: 20px 0 6px; }
+.recent { list-style: none; margin: 0; padding: 0; border: 1px solid var(--border); border-radius: 8px; }
+.recent li { display: flex; align-items: center; border-bottom: 1px solid var(--border); }
+.recent li:last-child { border-bottom: 0; }
+.recent .link { display: flex; flex-direction: column; overflow: hidden; }
+.recent .link span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.topbar {
+  display: flex; align-items: center; gap: 12px; padding: 10px 16px;
+  background: var(--surface); border-bottom: 1px solid var(--border);
+}
+.split { flex: 1; display: grid; grid-template-columns: 300px 1fr; min-height: 0; }
+.list { border-right: 1px solid var(--border); padding: 12px; overflow: auto; background: var(--surface); }
+.list-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.search { margin-bottom: 8px; }
+.channel { display: flex; gap: 10px; align-items: center; border-radius: 8px; }
+.channel > span:last-child { display: flex; flex-direction: column; }
+.channel.active, .channel:hover { background: var(--bg); }
+.dot { width: 12px; height: 12px; border-radius: 50%; flex: none; }
+.editor { padding: 24px; overflow: auto; }
+.editor form { max-width: 640px; }
+.editor h2 { margin-bottom: 16px; }
+.colors { display: flex; gap: 8px; flex-wrap: wrap; }
+.swatch { width: 28px; height: 28px; padding: 0; border-radius: 50%; border: 2px solid transparent; }
+.swatch.selected { border-color: var(--text); box-shadow: 0 0 0 2px var(--surface) inset; }

@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=YTStudio
+Comment=Gerencie seus canais do YouTube
+Exec=ytstudio
+Terminal=false
+Categories=Office;AudioVideo;

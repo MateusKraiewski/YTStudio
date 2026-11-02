@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <!-- WinExe: no Windows abre sem janela de console. No Mac e no Linux não muda nada. -->
+    <OutputType>WinExe</OutputType>
+    <AssemblyName>YTStudio</AssemblyName>
+    <RootNamespace>YTStudio.Desktop</RootNamespace>
+    <InvariantGlobalization>false</InvariantGlobalization>
+    <SatelliteResourceLanguages>pt-BR;en</SatelliteResourceLanguages>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\YTStudio.Core\YTStudio.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Janela nativa com navegador embutido (WebView2 no Windows, WKWebView no Mac, WebKitGTK no Linux). -->
+    <PackageReference Include="Photino.NET" Version="4.0.16" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Interface Angular compilada (ui/ → wwwroot), servida da pasta do programa. -->
+    <Content Update="wwwroot\**\*" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="YTStudio.Tests" />
+  </ItemGroup>
+
+</Project>

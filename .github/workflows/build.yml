@@ -1,0 +1,91 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+
+permissions:
+  contents: read
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - run: dotnet test YTStudio.slnx -c Release
+
+  package:
+    needs: test
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            rid: win-x64
+          - os: macos-latest
+            rid: osx-arm64
+          - os: macos-latest
+            rid: osx-x64
+          - os: ubuntu-latest
+            rid: linux-x64
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: ui/package-lock.json
+
+      - name: Versão
+        shell: bash
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then v="${GITHUB_REF#refs/tags/v}"; else v="0.1.0"; fi
+          echo "YTSTUDIO_VERSION=$v" >> "$GITHUB_ENV"
+
+      - name: Interface (Angular)
+        working-directory: ui
+        run: |
+          npm ci
+          npm run build
+
+      - name: Publicar
+        shell: bash
+        run: >
+          dotnet publish src/YTStudio.Desktop -c Release -r ${{ matrix.rid }} --self-contained true
+          -p:Version=$YTSTUDIO_VERSION -o artifacts/publish/${{ matrix.rid }}
+
+      - name: Instalador Windows
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          if (-not (Test-Path $iscc)) { choco install innosetup --no-progress -y; }
+          & $iscc packaging\windows\ytstudio.iss
+          Compress-Archive -Path artifacts\publish\win-x64\* -DestinationPath "dist\YTStudio-$env:YTSTUDIO_VERSION-windows-x64-portable.zip"
+
+      - name: Instalador macOS
+        if: runner.os == 'macOS'
+        run: packaging/macos/package.sh ${{ matrix.rid }} "$YTSTUDIO_VERSION"
+
+      - name: Pacotes Linux
+        if: runner.os == 'Linux'
+        run: packaging/linux/package.sh "$YTSTUDIO_VERSION"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: YTStudio-${{ matrix.rid }}
+          path: dist/*
+          if-no-files-found: error
